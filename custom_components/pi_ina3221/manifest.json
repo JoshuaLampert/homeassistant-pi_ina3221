@@ -1,0 +1,12 @@
+{
+  "domain": "pi_ina3221",
+  "name": "INA3221 Power Monitor",
+  "codeowners": ["@JoshuaLampert"],
+  "config_flow": true,
+  "documentation": "https://github.com/JoshuaLampert/homeassistant-pi_ina3221",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/JoshuaLampert/homeassistant-pi_ina3221/issues",
+  "requirements": ["adafruit-circuitpython-ina3221==1.0.5"],
+  "version": "0.1.0"
+}

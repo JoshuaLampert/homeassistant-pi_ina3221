@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure INA3221 Power Monitor",
+        "description": "Set up your INA3221 sensor to monitor current, voltage, and power on three channels.",
+        "data": {
+          "i2c_bus": "I2C Bus Number",
+          "i2c_address": "I2C Address (hex)",
+          "shunt_ohms_ch1": "Channel 1 Shunt Resistor Value (Ohms)",
+          "shunt_ohms_ch2": "Channel 2 Shunt Resistor Value (Ohms)",
+          "shunt_ohms_ch3": "Channel 3 Shunt Resistor Value (Ohms)",
+          "channel_1_enabled": "Enable Channel 1",
+          "channel_2_enabled": "Enable Channel 2",
+          "channel_3_enabled": "Enable Channel 3"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to INA3221 sensor. Please check your I2C bus, address, and wiring.",
+      "unknown": "Unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
