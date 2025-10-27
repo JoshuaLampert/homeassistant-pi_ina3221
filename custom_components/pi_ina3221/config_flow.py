@@ -57,50 +57,11 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    i2c_bus = data[CONF_I2C_BUS]
     i2c_address = data[CONF_I2C_ADDRESS]
 
-    # Test if we can initialize the INA3221
-    def _test_connection():
-        try:
-            # Import hardware-specific modules only when needed
-            from adafruit_ina3221 import INA3221
-            import board
-            import busio
-            
-            # Get I2C bus using busio
-            i2c = busio.I2C(board.SCL, board.SDA)
-            
-            # Determine which channels to enable
-            enabled_channels = []
-            if data[CONF_CHANNEL_1_ENABLED]:
-                enabled_channels.append(0)
-            if data[CONF_CHANNEL_2_ENABLED]:
-                enabled_channels.append(1)
-            if data[CONF_CHANNEL_3_ENABLED]:
-                enabled_channels.append(2)
-            
-            # Initialize INA3221
-            ina = INA3221(i2c, address=i2c_address, enable=enabled_channels)
-            
-            # Set shunt resistances for each channel
-            ina.channels[0].shunt_resistance = data[CONF_SHUNT_OHMS_CH1]
-            ina.channels[1].shunt_resistance = data[CONF_SHUNT_OHMS_CH2]
-            ina.channels[2].shunt_resistance = data[CONF_SHUNT_OHMS_CH3]
-            
-            # Try to read voltage from an enabled channel to verify connection
-            for channel_idx in enabled_channels:
-                ina[channel_idx].bus_voltage
-                break
-            
-            return True
-        except Exception as err:
-            _LOGGER.error("Failed to connect to INA3221: %s", err)
-            raise CannotConnect from err
-
-    await hass.async_add_executor_job(_test_connection)
-
     # Return info that you want to store in the config entry.
+    # Note: We skip hardware validation during config flow setup
+    # The actual hardware connection will be validated when the integration is loaded
     return {"title": f"INA3221 (0x{i2c_address:02X})"}
 
 
@@ -118,8 +79,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 info = await validate_input(self.hass, user_input)
-            except CannotConnect:
-                errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
