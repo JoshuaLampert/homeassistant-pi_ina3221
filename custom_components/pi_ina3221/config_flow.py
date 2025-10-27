@@ -10,7 +10,6 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     CONF_CHANNEL_1_ENABLED,
@@ -58,10 +57,39 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     i2c_address = data[CONF_I2C_ADDRESS]
+    i2c_bus = data[CONF_I2C_BUS]
+
+    # Try to validate hardware connection (optional - won't fail setup if hardware is not available)
+    def _test_connection() -> bool:
+        """Test connection to INA3221 hardware."""
+        try:
+            from .ina3221 import INA3221
+
+            # Initialize with provided configuration
+            ina = INA3221(
+                i2c_bus=i2c_bus,
+                address=i2c_address,
+                shunt_resistors=(
+                    data[CONF_SHUNT_OHMS_CH1],
+                    data[CONF_SHUNT_OHMS_CH2],
+                    data[CONF_SHUNT_OHMS_CH3],
+                ),
+            )
+            # Try to read from channel 1 to verify connection
+            ina.read_channel(1)
+            ina.close()
+            return True
+        except Exception as err:
+            _LOGGER.debug("Hardware validation failed (this is OK): %s", err)
+            return False
+
+    # Run hardware validation but don't block setup if it fails
+    try:
+        await hass.async_add_executor_job(_test_connection)
+    except Exception:
+        _LOGGER.debug("Could not validate hardware connection, but continuing with setup")
 
     # Return info that you want to store in the config entry.
-    # Note: We skip hardware validation during config flow setup
-    # The actual hardware connection will be validated when the integration is loaded
     return {"title": f"INA3221 (0x{i2c_address:02X})"}
 
 
@@ -94,7 +122,3 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
-
-
-class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect."""
