@@ -6,10 +6,6 @@ from datetime import timedelta
 import logging
 from typing import Any
 
-from adafruit_ina3221 import INA3221
-import board
-import busio
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -116,6 +112,11 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _init_sensor(self) -> None:
         """Initialize the INA3221 sensor."""
         if self._ina is None:
+            # Import hardware-specific modules only when needed
+            from adafruit_ina3221 import INA3221
+            import board
+            import busio
+            
             # Initialize I2C bus
             self._i2c = busio.I2C(board.SCL, board.SDA)
             

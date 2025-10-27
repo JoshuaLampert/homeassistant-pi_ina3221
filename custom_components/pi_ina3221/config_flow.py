@@ -5,8 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from adafruit_ina3221 import INA3221
-import board
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -65,8 +63,12 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # Test if we can initialize the INA3221
     def _test_connection():
         try:
-            # Get I2C bus using busio
+            # Import hardware-specific modules only when needed
+            from adafruit_ina3221 import INA3221
+            import board
             import busio
+            
+            # Get I2C bus using busio
             i2c = busio.I2C(board.SCL, board.SDA)
             
             # Determine which channels to enable
