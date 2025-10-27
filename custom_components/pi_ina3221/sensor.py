@@ -112,34 +112,19 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _init_sensor(self) -> None:
         """Initialize the INA3221 sensor."""
         if self._ina is None:
-            # Import hardware-specific modules only when needed
-            from adafruit_ina3221 import INA3221
-            import board
-            import busio
+            # Import our pure Python INA3221 driver
+            from .ina3221 import INA3221
             
-            # Initialize I2C bus
-            self._i2c = busio.I2C(board.SCL, board.SDA)
-            
-            # Determine which channels to enable
-            enabled_channels = []
-            if self.channel_1_enabled:
-                enabled_channels.append(0)
-            if self.channel_2_enabled:
-                enabled_channels.append(1)
-            if self.channel_3_enabled:
-                enabled_channels.append(2)
-            
-            # Initialize INA3221
+            # Initialize INA3221 with shunt resistor values
             self._ina = INA3221(
-                self._i2c,
+                i2c_bus=self.i2c_bus,
                 address=self.i2c_address,
-                enable=enabled_channels,
+                shunt_resistors=(
+                    self.shunt_ohms_ch1,
+                    self.shunt_ohms_ch2,
+                    self.shunt_ohms_ch3,
+                ),
             )
-            
-            # Set shunt resistances for each channel
-            self._ina.channels[0].shunt_resistance = self.shunt_ohms_ch1
-            self._ina.channels[1].shunt_resistance = self.shunt_ohms_ch2
-            self._ina.channels[2].shunt_resistance = self.shunt_ohms_ch3
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from INA3221."""
@@ -161,11 +146,12 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ][channel_idx]
 
                 if channel_enabled:
-                    channel = self._ina[channel_idx]
-                    voltage = channel.bus_voltage  # in Volts
-                    current_ma = channel.current  # in mA
-                    current = current_ma / 1000  # Convert mA to A
-                    power = voltage * current  # Calculate power in W
+                    # Read channel data (channels are numbered 1, 2, 3 in our driver)
+                    channel_data = self._ina.read_channel(channel_idx + 1)
+                    
+                    voltage = channel_data["voltage"]  # in Volts
+                    current = channel_data["current"]  # in Amperes
+                    power = channel_data["power"]  # in Watts
 
                     data[f"ch{channel_idx + 1}_voltage"] = voltage
                     data[f"ch{channel_idx + 1}_current"] = current

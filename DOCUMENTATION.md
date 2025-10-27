@@ -238,7 +238,7 @@ For issues, feature requests, or contributions:
 ## Credits
 
 - Based on the [INA219 Power Monitor integration](https://github.com/JoshuaLampert/homeassistant-pi_ina219)
-- Uses the [Adafruit CircuitPython INA3221 library](https://github.com/adafruit/Adafruit_CircuitPython_INA3221)
+- Uses a pure Python driver with `smbus2` for direct I2C communication
 - Hardware: [Adafruit INA3221](https://www.adafruit.com/product/6062)
 
 ## License

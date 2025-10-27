@@ -43,4 +43,4 @@ For detailed setup instructions, configuration options, and troubleshooting, see
 
 ## Credits
 
-Based on the [INA219 Power Monitor integration](https://github.com/JoshuaLampert/homeassistant-pi_ina219) and uses the [Adafruit CircuitPython INA3221 library](https://github.com/adafruit/Adafruit_CircuitPython_INA3221).
+Based on the [INA219 Power Monitor integration](https://github.com/JoshuaLampert/homeassistant-pi_ina219) and uses a pure Python driver for direct I2C communication with the INA3221.

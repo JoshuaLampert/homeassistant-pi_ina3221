@@ -55,7 +55,7 @@ Where X is 1, 2, or 3 depending on the channel.
 
 ## Dependencies
 
-This integration uses the [Adafruit CircuitPython INA3221](https://github.com/adafruit/Adafruit_CircuitPython_INA3221) library to communicate with the INA3221 sensor.
+This integration uses a pure Python driver based on `smbus2` to communicate with the INA3221 sensor via I2C.
 
 ## Troubleshooting
 
@@ -74,7 +74,7 @@ This integration uses the [Adafruit CircuitPython INA3221](https://github.com/ad
 
 ## Credits
 
-This integration is based on the [INA219 Power Monitor integration](https://github.com/JoshuaLampert/homeassistant-pi_ina219) and uses the [Adafruit CircuitPython INA3221 library](https://github.com/adafruit/Adafruit_CircuitPython_INA3221).
+This integration is based on the [INA219 Power Monitor integration](https://github.com/JoshuaLampert/homeassistant-pi_ina219) and uses a pure Python driver for direct I2C communication with the INA3221.
 
 ## License
 
