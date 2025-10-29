@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from smbus2 import SMBus
+
+_LOGGER = logging.getLogger(__name__)
 
 
 # INA3221 Register addresses
@@ -86,6 +89,41 @@ class INA3221:
         data = [(value >> 8) & 0xFF, value & 0xFF]
         self.bus.write_i2c_block_data(self.address, register, data)
 
+    def _read_voltage_register(
+        self, channel: int, register_map: dict[int, int], lsb_mv: float, register_type: str
+    ) -> float:
+        """Read voltage from a register for a channel.
+
+        Args:
+            channel: Channel number (1, 2, or 3)
+            register_map: Dictionary mapping channel to register address
+            lsb_mv: LSB value in millivolts
+            register_type: Type of register for logging ("shunt" or "bus")
+
+        Returns:
+            Voltage value in millivolts
+        """
+        reg = register_map.get(channel)
+        if reg is None:
+            raise ValueError(f"Invalid channel: {channel}. Must be 1, 2, or 3.")
+
+        raw = self._read_register(reg)
+        # Voltage is in bits 15-3, LSB varies by register type
+        value = _to_signed_int(raw >> 3, bits=13)
+        voltage_mv = value * lsb_mv
+        
+        _LOGGER.debug(
+            "Channel %d %s voltage: raw=0x%04X, register=0x%02X, value=%d, voltage=%.3f mV",
+            channel,
+            register_type,
+            raw,
+            reg,
+            value,
+            voltage_mv,
+        )
+        
+        return voltage_mv
+
     def _read_shunt_voltage(self, channel: int) -> float:
         """Read shunt voltage for a channel (1, 2, or 3).
 
@@ -97,14 +135,8 @@ class INA3221:
             2: _REG_SHUNT_VOLTAGE_2,
             3: _REG_SHUNT_VOLTAGE_3,
         }
-        reg = register_map.get(channel)
-        if reg is None:
-            raise ValueError(f"Invalid channel: {channel}. Must be 1, 2, or 3.")
-
-        raw = self._read_register(reg)
-        # Shunt voltage is in bits 15-3, LSB = 40µV
-        value = _to_signed_int(raw >> 3, bits=13)
-        return value * 0.040  # Convert to millivolts
+        # Shunt voltage LSB = 40µV = 0.040mV
+        return self._read_voltage_register(channel, register_map, 0.040, "shunt")
 
     def _read_bus_voltage(self, channel: int) -> float:
         """Read bus voltage for a channel (1, 2, or 3).
@@ -117,14 +149,9 @@ class INA3221:
             2: _REG_BUS_VOLTAGE_2,
             3: _REG_BUS_VOLTAGE_3,
         }
-        reg = register_map.get(channel)
-        if reg is None:
-            raise ValueError(f"Invalid channel: {channel}. Must be 1, 2, or 3.")
-
-        raw = self._read_register(reg)
-        # Bus voltage is in bits 15-3, LSB = 8mV
-        value = _to_signed_int(raw >> 3, bits=13)
-        return value * 0.008  # Convert to volts
+        # Bus voltage LSB = 8mV
+        voltage_mv = self._read_voltage_register(channel, register_map, 8.0, "bus")
+        return voltage_mv / 1000.0  # Convert to volts
 
     def read_channel(self, channel: int) -> dict[str, float]:
         """Read voltage, current, and power for a channel.
@@ -148,6 +175,17 @@ class INA3221:
 
         # Calculate power: P = V * I
         power = bus_voltage * current  # in Watts
+
+        _LOGGER.debug(
+            "Channel %d: shunt_voltage=%.3f mV, bus_voltage=%.3f V, "
+            "shunt_resistor=%.3f Ω, current=%.6f A, power=%.6f W",
+            channel,
+            shunt_voltage_mv,
+            bus_voltage,
+            shunt_resistor,
+            current,
+            power,
+        )
 
         return {
             "voltage": bus_voltage,
