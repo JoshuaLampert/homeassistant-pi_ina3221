@@ -108,7 +108,7 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.channel_1_enabled = channel_1_enabled
         self.channel_2_enabled = channel_2_enabled
         self.channel_3_enabled = channel_3_enabled
-        self.scan_interval = scan_interval or DEFAULT_SCAN_INTERVAL
+
         self._ina = None
         self._i2c = None
 
