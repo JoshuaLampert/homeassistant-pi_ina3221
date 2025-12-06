@@ -38,42 +38,7 @@
   "services": {
     "set_scan_interval": {
       "name": "Set scan interval",
-      "description": "Set the scan interval for a specific INA3221 device.",
-      "fields": {
-        "i2c_bus": {
-          "name": "I2C Bus",
-          "description": "I2C bus number (typically 1 on Raspberry Pi)",
-          "selector": {
-            "number": {
-              "min": "0",
-              "step": "1"
-            }
-          }
-        },
-        "i2c_address": {
-          "name": "I2C Address",
-          "description": "I2C address of the INA3221 device (hex, 0x00-0x7F)",
-          "selector": {
-            "number": {
-              "min": "0",
-              "max": "127",
-              "step": "1"
-            }
-          }
-        },
-        "scan_interval": {
-          "name": "Scan Interval",
-          "description": "Scan interval in seconds (5-3600)",
-          "selector": {
-            "number": {
-              "min": "5",
-              "max": "3600",
-              "step": "1",
-              "unit_of_measurement": "s"
-            }
-          }
-        }
-      }
+      "description": "Set the scan interval for a specific INA3221 device."
     }
   }
 }
