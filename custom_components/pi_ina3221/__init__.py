@@ -9,7 +9,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
-import homeassistant.helpers.config_validation as cv
+
 
 from .const import (
     ATTR_I2C_ADDRESS,
@@ -32,7 +32,7 @@ from .sensor import INA3221DataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = "pi_ina3221"
+
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 SET_SCAN_INTERVAL_SERVICE_SCHEMA = vol.Schema(
@@ -138,3 +138,4 @@ async def async_set_scan_interval_service(call: ServiceCall) -> None:
     hass.config_entries.async_update_entry(
         entry, options={**entry.options, CONF_SCAN_INTERVAL: scan_interval}
     )
+    await hass.config_entries.async_reload(entry.entry_id)

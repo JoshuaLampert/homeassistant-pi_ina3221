@@ -140,7 +140,7 @@ Change the scan interval at runtime from an automation or script for a specific 
 
 **Parameters:**
 - `i2c_bus` (required, integer): I2C bus number (typically 1 on Raspberry Pi)
-- `i2c_address` (required, integer): I2C address of the INA3221 device (0x40 decimal = 64, or use hex like 0x40)
+- `i2c_address` (required, integer): I2C address of the INA3221 device (0x40 hexadecimal = 64 decimal; you can use either 0x40 or 64)
 - `scan_interval` (required, integer): Scan interval in seconds (range: 5–3600)
 
 **Example automation:**
