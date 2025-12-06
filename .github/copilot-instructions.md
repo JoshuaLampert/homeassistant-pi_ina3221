@@ -1,0 +1,20 @@
+# Copilot Instructions for homeassistant-pi_ina3221
+
+- **Scope**: Home Assistant custom integration `pi_ina3221` exposing INA3221 voltage/current/power sensors via the sensor platform and a `set_scan_interval` service. Code lives under `custom_components/pi_ina3221/`.
+- **Key files**: `__init__.py` (entry setup/unload), `sensor.py` (entities + `INA3221DataUpdateCoordinator`), `config_flow.py` (UI setup/validation), `ina3221.py` (pure Python SMBus driver), `const.py` (user config defaults), `manifest.json` (deps: `smbus2==0.4.3`).
+- **Data flow**: Config flow collects I2C bus/address, per-channel shunt ohms, and enable flags; `async_setup_entry` instantiates `INA3221DataUpdateCoordinator` with those values and stores it on `entry.runtime_data`; sensor platform pulls the coordinator from `runtime_data`.
+- **Coordinator pattern**: `INA3221DataUpdateCoordinator` runs `_update_data` in an executor on the configured interval. It lazy-initializes the driver once (`_init_sensor`) and reads only enabled channels, populating keys like `ch1_voltage`, `ch1_current`, `ch1_power`.
+- **Entities**: For each enabled channel, three entities are added with names `Channel {n} Voltage/Current/Power`, unique IDs `{entry_id}_ch{n}_<metric>`, device_class + unit set appropriately, `SensorStateClass.MEASUREMENT`.
+- **Driver expectations**: `ina3221.INA3221` uses `smbus2.SMBus` (defaults bus 1, address 0x40) and configures the chip once with averaging + continuous mode. `_read_voltage_register` decodes big-endian registers (13-bit signed). Current = shunt_voltage / shunt_resistor; power = bus_voltage * current. Keep register math and endian handling intact when editing.
+- **Config validation**: `config_flow.validate_input` optionally instantiates the driver and reads channel 1 to sanity-check hardware. Failures are logged at debug and do not block setup; avoid turning these into fatal errors.
+- **Channel toggles**: Enable flags (`CONF_CHANNEL_1_ENABLED` etc.) gate both entity creation and per-update reads. When adding features, respect these flags to avoid I/O on disabled channels.
+- **Timing**: Scan interval is user-configurable in the config flow (`scan_interval`, seconds; default 30), adjustable via the options flow (Configure), and can be changed from automations/scripts via the `pi_ina3221.set_scan_interval` service. The coordinator uses that value as `timedelta(seconds=scan_interval)`; keep reasonable bounds to avoid I2C overload.
+- **Errors**: Hardware/IO errors bubble up as `UpdateFailed` from `_update_data`; Home Assistant will handle backoff. Do not catch and swallow broadly in entities; keep errors surfaced via the coordinator.
+- **Services**: `pi_ina3221.set_scan_interval` allows runtime scan interval changes from automations. Service updates `entry.options` which triggers `async_reload_entry` to apply the new interval.
+- **Translations/UI**: User-facing strings live in `strings.json` and `translations/en.json` (others may mirror). Update all three files when adding config fields or services.
+- **Uniqueness**: Unique ID combines `i2c_bus` and `i2c_address` in the config flow; changing these requires migrating existing entries or aborting duplicates.
+- **Testing/development**: No automated tests present. Manual workflow: copy `custom_components/pi_ina3221` into a Home Assistant instance (or use HACS custom repo), restart, and watch logs for `pi_ina3221` debug output. Hardware access (I2C) is required for real reads; use mocks if running in CI/without hardware.
+- **Dependencies/packaging**: Versioned via `manifest.json` `version` field; remember to bump when shipping features. Keep `requirements` pinned; `smbus2` is required at runtime on the host with I2C access.
+- **Logging**: Driver logs at debug per-channel raw/decoded values; keep logging lightweight to avoid noisy HA logs at info level.
+
+If anything here is unclear or incomplete, please tell me what to adjust.

@@ -11,9 +11,17 @@ CONF_SHUNT_OHMS_CH3 = "shunt_ohms_ch3"
 CONF_CHANNEL_1_ENABLED = "channel_1_enabled"
 CONF_CHANNEL_2_ENABLED = "channel_2_enabled"
 CONF_CHANNEL_3_ENABLED = "channel_3_enabled"
+CONF_SCAN_INTERVAL = "scan_interval"
+
+# Service names and constants
+SERVICE_SET_SCAN_INTERVAL = "set_scan_interval"
+ATTR_SCAN_INTERVAL = "scan_interval"
+ATTR_I2C_BUS = "i2c_bus"
+ATTR_I2C_ADDRESS = "i2c_address"
 
 # Default values
 DEFAULT_I2C_BUS = 1
 DEFAULT_I2C_ADDRESS = 0x40
 DEFAULT_SHUNT_OHMS = 0.05
 DEFAULT_CHANNEL_ENABLED = True
+DEFAULT_SCAN_INTERVAL = 30

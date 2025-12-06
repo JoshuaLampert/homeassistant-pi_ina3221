@@ -105,6 +105,9 @@ Add the integration through the Home Assistant UI:
     - **I2C Address**: Default is `0x40` (64 in decimal), note that the slider accepts decimal values, so you have to translate the hex value to decimal
     - **Shunt Resistor Values**: Configure the shunt resistor value in Ohms for each channel (default: `0.05` Ohms)
     - **Channel Enable**: Enable or disable each channel individually
+    - **Scan Interval (seconds)**: How often to poll the sensor
+
+After setup you can adjust the scan interval later via the integration's **Options** in Home Assistant (Configure button on the integration card).
 
 Different INA3221 devices can be used if they are configured to have different I2C addresses. For details refer to Section 7.5.1.1 of the
 [manual](https://www.ti.com/lit/ds/symlink/ina3221.pdf).
@@ -117,6 +120,7 @@ Different INA3221 devices can be used if they are configured to have different I
 | I2C Address | The I2C address of the INA3221 | 0x40 | 0x00-0x7F (0-127 in decimal) |
 | Channel X Shunt Resistor Value | The value of the shunt resistor of channel X in ohms | 0.05 | 0.001-1.0 |
 | Enable Channel X | Do not create sensors for channel X if disabled | True | True/False |
+| Scan Interval (seconds) | How often to poll the sensor | 30 | 5-3600 |
 
 ## Sensors
 
@@ -127,6 +131,35 @@ For each enabled channel, the integration provides three sensors:
 - **Channel X Power**: Power in Watts (W)
 
 Where X is 1, 2, or 3 depending on the channel.
+
+## Services
+
+### `pi_ina3221.set_scan_interval`
+
+Change the scan interval at runtime from an automation or script for a specific device.
+
+**Parameters:**
+- `i2c_bus` (required, integer): I2C bus number (typically 1 on Raspberry Pi)
+- `i2c_address` (required, integer): I2C address of the INA3221 device (0x40 hexadecimal = 64 decimal; you can use either 0x40 or 64)
+- `scan_interval` (required, integer): Scan interval in seconds (range: 5–3600)
+
+**Example automation:**
+```yaml
+automation:
+  - alias: "Decrease INA3221 scan rate at night"
+    trigger:
+      platform: time
+      at: "22:00:00"
+    action:
+      service: pi_ina3221.set_scan_interval
+      data:
+        i2c_bus: 1
+        i2c_address: 0x40
+        scan_interval: 60
+```
+
+**How to find your I2C bus and address:**
+The I2C bus and address are the same ones you configured when setting up the integration. Default bus is `1` and default address is `0x40` (64 in decimal). If you configured different values, use those instead. If you did not change the name of a device, you can also find the bus and address in the name of the device.
 
 ## Dependencies
 

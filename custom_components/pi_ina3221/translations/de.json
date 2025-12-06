@@ -6,13 +6,14 @@
         "description": "Richten Sie Ihren INA3221-Sensor ein, um Strom, Spannung und Leistung auf drei Kanälen zu überwachen.",
         "data": {
           "i2c_bus": "I2C-Busnummer",
-          "i2c_address": "I2C-Adresse (hex)",
+          "i2c_address": "I2C-Adresse (dezimal 0-127 oder hex 0x00-0x7F)",
           "shunt_ohms_ch1": "Kanal 1 Shunt-Widerstandswert (Ohm)",
           "shunt_ohms_ch2": "Kanal 2 Shunt-Widerstandswert (Ohm)",
           "shunt_ohms_ch3": "Kanal 3 Shunt-Widerstandswert (Ohm)",
           "channel_1_enabled": "Kanal 1 aktivieren",
           "channel_2_enabled": "Kanal 2 aktivieren",
-          "channel_3_enabled": "Kanal 3 aktivieren"
+          "channel_3_enabled": "Kanal 3 aktivieren",
+          "scan_interval": "Abfrageintervall (Sekunden)"
         }
       }
     },
@@ -22,6 +23,36 @@
     },
     "abort": {
       "already_configured": "Gerät ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "INA3221-Optionen anpassen",
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_scan_interval": {
+      "name": "Abfrageintervall festlegen",
+      "description": "Legt das Abfrageintervall für ein bestimmtes INA3221-Gerät fest.",
+      "fields": {
+        "i2c_bus": {
+          "name": "I2C-Bus",
+          "description": "I2C-Busnummer (normalerweise 1 auf Raspberry Pi)"
+        },
+        "i2c_address": {
+          "name": "I2C-Adresse",
+          "description": "I2C-Adresse des INA3221-Geräts (dezimal 0-127 oder hex 0x00-0x7F)"
+        },
+        "scan_interval": {
+          "name": "Abfrageintervall",
+          "description": "Abfrageintervall in Sekunden (5-3600)"
+        }
+      }
     }
   }
 }
