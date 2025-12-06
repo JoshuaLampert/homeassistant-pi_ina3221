@@ -55,6 +55,19 @@ def _get_scan_interval(entry: ConfigEntry) -> int:
     )
 
 
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the INA3221 integration (register services)."""
+    # Register the service once for the integration
+    if not hass.services.has_service(DOMAIN, SERVICE_SET_SCAN_INTERVAL):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_SCAN_INTERVAL,
+            async_set_scan_interval_service,
+            schema=SET_SCAN_INTERVAL_SERVICE_SCHEMA,
+        )
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up INA3221 Power Monitor from a config entry."""
     _LOGGER.debug("Setting up INA3221 Power Monitor integration")
@@ -79,14 +92,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
-
-    # Register services
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_SCAN_INTERVAL,
-        async_set_scan_interval_service,
-        schema=SET_SCAN_INTERVAL_SERVICE_SCHEMA,
-    )
 
     return True
 
