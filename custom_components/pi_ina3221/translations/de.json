@@ -12,7 +12,8 @@
           "shunt_ohms_ch3": "Kanal 3 Shunt-Widerstandswert (Ohm)",
           "channel_1_enabled": "Kanal 1 aktivieren",
           "channel_2_enabled": "Kanal 2 aktivieren",
-          "channel_3_enabled": "Kanal 3 aktivieren"
+          "channel_3_enabled": "Kanal 3 aktivieren",
+          "scan_interval": "Abfrageintervall (Sekunden)"
         }
       }
     },
@@ -22,6 +23,57 @@
     },
     "abort": {
       "already_configured": "Gerät ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "INA3221-Optionen anpassen",
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_scan_interval": {
+      "name": "Abfrageintervall festlegen",
+      "description": "Legt das Abfrageintervall für ein bestimmtes INA3221-Gerät fest.",
+      "fields": {
+        "i2c_bus": {
+          "name": "I2C-Bus",
+          "description": "I2C-Busnummer (normalerweise 1 auf Raspberry Pi)",
+          "selector": {
+            "number": {
+              "min": "0",
+              "step": "1"
+            }
+          }
+        },
+        "i2c_address": {
+          "name": "I2C-Adresse",
+          "description": "I2C-Adresse des INA3221-Geräts (Hex, 0x00-0x7F)",
+          "selector": {
+            "number": {
+              "min": "0",
+              "max": "127",
+              "step": "1"
+            }
+          }
+        },
+        "scan_interval": {
+          "name": "Abfrageintervall",
+          "description": "Abfrageintervall in Sekunden (5-3600)",
+          "selector": {
+            "number": {
+              "min": "5",
+              "max": "3600",
+              "step": "1",
+              "unit_of_measurement": "s"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -17,12 +17,14 @@ from .const import (
     CONF_CHANNEL_3_ENABLED,
     CONF_I2C_ADDRESS,
     CONF_I2C_BUS,
+    CONF_SCAN_INTERVAL,
     CONF_SHUNT_OHMS_CH1,
     CONF_SHUNT_OHMS_CH2,
     CONF_SHUNT_OHMS_CH3,
     DEFAULT_CHANNEL_ENABLED,
     DEFAULT_I2C_ADDRESS,
     DEFAULT_I2C_BUS,
+    DEFAULT_SCAN_INTERVAL,
     DEFAULT_SHUNT_OHMS,
     DOMAIN,
 )
@@ -47,6 +49,9 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_CHANNEL_1_ENABLED, default=DEFAULT_CHANNEL_ENABLED): bool,
         vol.Required(CONF_CHANNEL_2_ENABLED, default=DEFAULT_CHANNEL_ENABLED): bool,
         vol.Required(CONF_CHANNEL_3_ENABLED, default=DEFAULT_CHANNEL_ENABLED): bool,
+        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+            vol.Coerce(int), vol.Range(min=5, max=3600)
+        ),
     }
 )
 
@@ -90,7 +95,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         _LOGGER.debug("Could not validate hardware connection, but continuing with setup")
 
     # Return info that you want to store in the config entry.
-    return {"title": f"INA3221 (0x{i2c_address:02X})"}
+    return {"title": f"INA3221 (Bus {i2c_bus}, 0x{i2c_address:02X})"}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -122,3 +127,35 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
+
+    @staticmethod
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        return OptionsFlowHandler()
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options for INA3221 Power Monitor."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL,
+            self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+        )
+
+        options_schema = vol.Schema(
+            {
+                vol.Required(CONF_SCAN_INTERVAL, default=current_interval): vol.All(
+                    vol.Coerce(int), vol.Range(min=5, max=3600)
+                ),
+            }
+        )
+
+        return self.async_show_form(step_id="init", data_schema=options_schema)

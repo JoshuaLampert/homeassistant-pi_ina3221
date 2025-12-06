@@ -30,16 +30,15 @@ from .const import (
     CONF_CHANNEL_1_ENABLED,
     CONF_CHANNEL_2_ENABLED,
     CONF_CHANNEL_3_ENABLED,
+    CONF_SCAN_INTERVAL,
     CONF_SHUNT_OHMS_CH1,
     CONF_SHUNT_OHMS_CH2,
     CONF_SHUNT_OHMS_CH3,
     DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(seconds=30)
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -90,13 +89,16 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         channel_1_enabled: bool,
         channel_2_enabled: bool,
         channel_3_enabled: bool,
+        scan_interval: int,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
             _LOGGER,
             name="INA3221 Power Monitor",
-            update_interval=SCAN_INTERVAL,
+            update_interval=timedelta(
+                seconds=scan_interval or DEFAULT_SCAN_INTERVAL
+            ),
         )
         self.i2c_bus = i2c_bus
         self.i2c_address = i2c_address
@@ -106,6 +108,7 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.channel_1_enabled = channel_1_enabled
         self.channel_2_enabled = channel_2_enabled
         self.channel_3_enabled = channel_3_enabled
+        self.scan_interval = scan_interval or DEFAULT_SCAN_INTERVAL
         self._ina = None
         self._i2c = None
 
@@ -114,7 +117,7 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if self._ina is None:
             # Import our pure Python INA3221 driver
             from .ina3221 import INA3221
-            
+
             # Initialize INA3221 with shunt resistor values
             self._ina = INA3221(
                 i2c_bus=self.i2c_bus,
@@ -148,7 +151,7 @@ class INA3221DataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if channel_enabled:
                     # Read channel data (channels are numbered 1, 2, 3 in our driver)
                     channel_data = self._ina.read_channel(channel_idx + 1)
-                    
+
                     voltage = channel_data["voltage"]  # in Volts
                     current = channel_data["current"]  # in Amperes
                     power = channel_data["power"]  # in Watts
