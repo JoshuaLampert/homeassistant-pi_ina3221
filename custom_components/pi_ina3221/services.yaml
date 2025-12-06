@@ -11,7 +11,7 @@ set_scan_interval:
           step: 1
     i2c_address:
       name: I2C Address
-      description: I2C address of the INA3221 device (hex, 0x00-0x7F)
+      description: I2C address of the INA3221 device (decimal 0-127 or hex 0x00-0x7F)
       selector:
         number:
           min: 0
