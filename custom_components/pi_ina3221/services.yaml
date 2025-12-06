@@ -5,6 +5,7 @@ set_scan_interval:
     i2c_bus:
       name: I2C Bus
       description: I2C bus number (typically 1 on Raspberry Pi)
+      required: true
       selector:
         number:
           min: 0
@@ -12,6 +13,7 @@ set_scan_interval:
     i2c_address:
       name: I2C Address
       description: I2C address of the INA3221 device (decimal 0-127 or hex 0x00-0x7F)
+      required: true
       selector:
         number:
           min: 0
@@ -20,6 +22,7 @@ set_scan_interval:
     scan_interval:
       name: Scan Interval
       description: Scan interval in seconds (5-3600)
+      required: true
       selector:
         number:
           min: 5
