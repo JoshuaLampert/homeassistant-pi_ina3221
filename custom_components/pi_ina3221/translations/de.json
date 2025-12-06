@@ -38,7 +38,21 @@
   "services": {
     "set_scan_interval": {
       "name": "Abfrageintervall festlegen",
-      "description": "Legt das Abfrageintervall für ein bestimmtes INA3221-Gerät fest."
+      "description": "Legt das Abfrageintervall für ein bestimmtes INA3221-Gerät fest.",
+      "fields": {
+        "i2c_bus": {
+          "name": "I2C-Bus",
+          "description": "I2C-Busnummer (normalerweise 1 auf Raspberry Pi)"
+        },
+        "i2c_address": {
+          "name": "I2C-Adresse",
+          "description": "I2C-Adresse des INA3221-Geräts (dezimal 0-127 oder hex 0x00-0x7F)"
+        },
+        "scan_interval": {
+          "name": "Abfrageintervall",
+          "description": "Abfrageintervall in Sekunden (5-3600)"
+        }
+      }
     }
   }
 }
