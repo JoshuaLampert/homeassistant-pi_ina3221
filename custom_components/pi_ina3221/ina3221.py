@@ -111,7 +111,7 @@ class INA3221:
         # Voltage is in bits 15-3, LSB varies by register type
         value = _to_signed_int(raw >> 3, bits=13)
         voltage_mv = value * lsb_mv
-        
+
         _LOGGER.debug(
             "Channel %d %s voltage: raw=0x%04X, register=0x%02X, value=%d, voltage=%.3f mV",
             channel,
@@ -121,7 +121,7 @@ class INA3221:
             value,
             voltage_mv,
         )
-        
+
         return voltage_mv
 
     def _read_shunt_voltage(self, channel: int) -> float:
