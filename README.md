@@ -1,6 +1,6 @@
 # INA3221 Power Monitor for Home Assistant
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![Marketplace](https://img.shields.io/badge/Marketplace-Custom-orange.svg)](https://www.home-assistant.io/integrations/marketplace/#custom-repositories)
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT)
 
 Home Assistant integration to measure voltage, current, and power with a three-channel [INA3221 sensor](https://www.ti.com/lit/ds/symlink/ina3221.pdf) from Texas Instruments on a Raspberry Pi.
@@ -21,28 +21,29 @@ Home Assistant integration to measure voltage, current, and power with a three-c
 
 Especially, this means no ESP is required because the INA3221 is directly wired to the Raspberry Pi running Home Assistant.
 
+<!-- ha-marketplace:exclude-start -->
 ## Installation
 
-### HACS (Recommended)
+### Marketplace (Recommended)
 
-[![Open your Home Assistant instance and show an integration.](https://my.home-assistant.io/badges/integration.svg)](https://my.home-assistant.io/redirect/integration/?domain=pi_ina3221)
+[![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=JoshuaLampert&repository=homeassistant-pi_ina3221&category=integration)
 
-1. Add this repository to HACS as a custom repository:
-   - Go to HACS
-   - Click the three dots in the top right corner
-   - Select "Custom repositories"
-   - Add `https://github.com/JoshuaLampert/homeassistant-pi_ina3221` as an Integration
-   - Click "Add"
+1. Go to Settings → Marketplace
+2. Select "Add from link" in the upper-right corner, enter
+   `https://github.com/JoshuaLampert/homeassistant-pi_ina3221`, and select "Add"
+3. Open "INA3221 Power Monitor" and select "Install"
 
-2. Install the integration:
-   - Search for "INA3221 Power Monitor" in HACS
-   - Click "Download"
-   - Restart Home Assistant
+Adding a repository by link requires a GitHub connection. If you are not connected yet, go to
+Settings → Devices & services → Marketplace → ⋮ → Reconfigure.
+
+On Home Assistant 2026.10 or older, add this repository in HACS as a custom repository of type
+Integration instead, download the integration, and restart Home Assistant.
 
 ### Manual Installation
 
 1. Copy the `custom_components/pi_ina3221` directory to your Home Assistant's `custom_components` directory
 2. Restart Home Assistant
+<!-- ha-marketplace:exclude-end -->
 
 ## Configuration
 
@@ -95,6 +96,8 @@ The easiest and most reliable method is to use the dedicated app (formerly known
 For more information and troubleshooting, see the [forum thread](https://community.home-assistant.io/t/add-on-hassos-i2c-configurator/264167).
 
 ### Adding the Integration
+
+[![Open your Home Assistant instance and show an integration.](https://my.home-assistant.io/badges/integration.svg)](https://my.home-assistant.io/redirect/integration/?domain=pi_ina3221)
 
 Add the integration through the Home Assistant UI:
   - Go to Settings -> Devices & Services
